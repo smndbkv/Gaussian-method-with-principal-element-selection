@@ -1,0 +1,297 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+
+\usepackage[
+  a4paper, mag=1000, includefoot,
+  left=1.1cm, right=1.1cm, top=1.2cm, bottom=1.2cm, headsep=0.8cm, footskip=0.8cm
+]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{times}
+\usepackage{mathptmx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{geometry}
+
+\IfFileExists{pscyr.sty}
+{
+  \usepackage{pscyr}
+  \def\rmdefault{ftm}
+  \def\sfdefault{ftx}
+  \def\ttdefault{fer}
+  \DeclareMathAlphabet{\mathbf}{OT1}{ftm}{bx}{it} % bx/it or bx/m
+}
+
+\mathsurround=0.1em
+\clubpenalty=1000%
+\widowpenalty=1000%
+\brokenpenalty=2000%
+\frenchspacing%
+\tolerance=2500%
+\hbadness=1500%
+\vbadness=1500%
+\doublehyphendemerits=50000%
+\finalhyphendemerits=25000%
+\adjdemerits=50000%
+
+\begin{document}
+
+\author{Дубков Семён}
+\title{Метод Гаусса решения линейной системы с выбором главного элемента по всей матрице}
+\date{\today}
+\maketitle
+
+\section{Постановка задачи}
+
+Рассмотрим систему $AX=B$ с матрицей
+$$A=
+   \begin{pmatrix}
+     a_{11}& a_{12} &\ldots & a_{1n}\\
+     a_{21}& a_{22} &\ldots & a_{2n}\\
+     \vdots& \vdots &\ddots & \vdots\\
+     a_{n1}& a_{n2} &\ldots & a_{nn}
+    \end{pmatrix}
+$$
+и правой частью
+$$B=
+   \begin{pmatrix}
+    b_{1} \\
+     \vdots \\
+     b_{n}
+    \end{pmatrix}.
+$$
+
+Представим матрицу в виде:
+$$A=
+  \begin{pmatrix} 
+    A_{11}^{m \times m} & A_{12}^{m \times m} & \cdots & A_{1,k}^{m \times m} & A_{1,k+1}^{m \times l} \\
+    A_{21}^{m \times m} & A_{22}^{m \times m} & \cdots & A_{2,k}^{m \times m} & A_{2,k+1}^{m \times l} \\ 
+    \vdots & \vdots & \ddots & \vdots & \vdots \\ 
+    A_{k,1}^{m \times m} & A_{k,2}^{m \times m} & \cdots & A_{k,k}^{m \times m} & A_{k,k+1}^{m \times l} \\
+    A_{k+1,1}^{l \times m} & A_{k+1,2}^{l \times m} & \cdots & A_{k+1,k}^{l \times m} & A_{k+1,k+1}^{l \times l} 
+  \end{pmatrix}.
+$$
+Правую часть представим в виде:
+$$B=
+   \begin{pmatrix}
+    B_{1}^{m\times 1} \\
+     \vdots \\
+     B_{k}^{m\times 1}\\
+     B_{k+1}^{l\times 1}
+    \end{pmatrix}.
+$$
+Исходную матрицу будем хранить в массиве стандартным образом:
+$$
+a[(i-1) \cdot n + (j-1)] = a_{ij},\quad b[(i-1)]=b_i, \quad i=1,\dots,n,\quad j=1,\dots,n.
+$$
+
+\newpage
+\section{Функции get\_block(), set\_block()}
+
+\begin{algorithm}
+\caption{Функция \texttt{get\_block(n, m, i, j, a, c, v, h)}}
+\begin{algorithmic}[1]
+\State // Возвращает блок $A_{ij}$ в матрицу $C$
+\State // $v$, $h$ — размеры матрицы $C$
+\State $k = n / m$
+\State $l = n \% m$
+\State $v = (i < k) ? m : l$
+\State $h = (j < k) ? m : l$
+\For{$r = 0$ to $v-1$}
+    \For{$s = 0$ to $h-1$}
+        \State $c[r \cdot h + s] = a[(i \cdot m + r) \cdot n + (j \cdot m + s)]$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Функция \texttt{set\_block(n, m, i, j, a, c, v, h)}}
+\begin{algorithmic}[1]
+\State // Устанавливает значения блока $A_{ij}$ из матрицы $C$
+\State // $v$, $h$ — размеры матрицы $C$
+\State $k = n / m$
+\State $l = n \% m$
+\State $v = (i < k) ? m : l$
+\State $h = (j < k) ? m : l$
+\For{$r = 0$ to $v-1$}
+    \For{$s = 0$ to $h-1$}
+        \State $a[(i \cdot m + r) \cdot n + (j \cdot m + s)] = c[r \cdot h + s]$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+\section{Описание алгоритма}
+
+На $s$-ом шаге алгоритма ищем блок с минимальной нормой обратной матрицы $B_{ij} = A_{ij}^{-1}$ (главный элемент):
+$$
+\|B_{ij}\| = \max_{0 \leq r < m} \sum_{t=0}^{m-1} |b_{(i \cdot m + r) \cdot n + j \cdot m + t}|,\ i = s,\dots k, j =s,\dots k.
+$$
+Пусть $A_{i_0j_0}$ — главный элемент. Переставим его на позицию $A_{ss}$, переставляя строки и столбцы в матрице и строки в правой части. Запоминаем в массиве перестановку столбцов $p[s] = j_0$. На $s$-ом шаге получаем матрицу, где $T$ — верхняя треугольная блочная матрица:
+$$A=
+  \begin{pmatrix} 
+    \ T & \cdots & \cdots & \cdots & \cdots \\
+    0  & A_{ss}^{m \times m} & \cdots & A_{s,k}^{m \times m} & A_{s,k+1}^{m \times l} \\ 
+    \vdots & \vdots & \ddots & \vdots & \vdots \\ 
+    \vdots& A_{k,2}^{m \times m} & \cdots & A_{k,k}^{m \times m} & A_{k,k+1}^{m \times l} \\
+    0 & A_{k+1,2}^{l \times m} & \cdots & A_{k+1,k}^{l \times m} & A_{k+1,k+1}^{l \times l} 
+  \end{pmatrix},\ 
+  B=
+  \begin{pmatrix}
+  \vdots \\
+  B_{s}^{m\times 1}\\
+  \vdots\\
+  B_{k+1}^{l\times 1}
+  \end{pmatrix}.
+$$
+Находим обратную матрицу $C^{m\times m} = A^{-1}_{ss}$ и домножаем строку и правую часть на неё слева:
+$$A=
+  \begin{pmatrix} 
+    \ T & \cdots & \cdots & \cdots & \cdots \\
+    0  & E & \cdots & C^{m\times m}A_{s,k}^{m \times m} & C^{m\times m}A_{s,k+1}^{m \times l} \\ 
+    \vdots & \vdots & \ddots & \vdots & \vdots \\ 
+    \vdots& A_{k,2}^{m \times m} & \cdots & A_{k,k}^{m \times m} & A_{k,k+1}^{m \times l} \\
+    0 & A_{k+1,2}^{l \times m} & \cdots & A_{k+1,k}^{l \times m} & A_{k+1,k+1}^{l \times l} 
+  \end{pmatrix},\ 
+  B=
+  \begin{pmatrix}
+  \vdots \\
+  C^{m\times m}B_{s}^{m\times 1}\\
+  \vdots\\
+  B_{k+1}^{l\times 1}
+  \end{pmatrix}.
+$$
+Затем обнуляем столбец, используя элементарные преобразования строк:
+$$
+\widetilde{A}_{ij} = A_{ij} - A_{is}(CA_{sj}),\quad \widetilde{B}_i=B_i - A_{is}(CB_s),\quad i =s+1,\dots k+1,\ j=s+1,\dots k+1.
+$$
+Получаем матрицу:
+$$A=
+  \begin{pmatrix} 
+    \ \widetilde{T} & \cdots & \cdots & \cdots & \cdots \\
+    0  & \widetilde{A}_{s+1,s+1}^{m\times m} & \cdots &\widetilde{A}_{s+1,k}^{m \times m} & \widetilde{A}_{s+1,k+1}^{m \times l} \\ 
+    \vdots & \vdots & \ddots & \vdots & \vdots \\ 
+    \vdots& \widetilde{A}_{k,2}^{m \times m} & \cdots & \widetilde{A}_{k,k}^{m \times m} & \widetilde{A}_{k,k+1}^{m \times l} \\
+    0 & \widetilde{A}_{k+1,2}^{l \times m} & \cdots & \widetilde{A}_{k+1,k}^{l \times m} & \widetilde{A}_{k+1,k+1}^{l \times l} 
+  \end{pmatrix},\ 
+  B=
+  \begin{pmatrix}
+  \vdots \\
+  B_{s}^{m\times 1}\\
+  \widetilde{B}_{s+1}^{m\times 1}\\
+  \vdots\\
+  \widetilde{B}_{k+1}^{l\times 1}
+  \end{pmatrix},
+$$
+где матрица $\widetilde{T}$ имеет вид:
+$$\widetilde{T} =
+  \begin{pmatrix} 
+  T & \cdots \\
+  0 & E
+  \end{pmatrix}.
+$$
+По индукции получаем верхнюю треугольную матрицу:
+$$A=
+  \begin{pmatrix} 
+    \ E^{m\times m} & \cdots & \cdots & \cdots & \cdots \\
+    0  & E^{m\times m} & \cdots &A_{s+1,k}^{m \times m} & A_{s+1,k+1}^{m \times l} \\ 
+    \vdots & \vdots & \ddots & \vdots & \vdots \\ 
+    \vdots& 0 & \cdots & E^{m\times m} & A_{k,k+1}^{m \times l} \\
+    0 & 0 & \cdots & 0 & E^{l \times l} 
+  \end{pmatrix},\ 
+  B=
+   \begin{pmatrix}
+    B_{1}^{m\times 1} \\
+     \vdots \\
+     B_{k}^{m\times 1}\\
+     B_{k+1}^{l\times 1}
+    \end{pmatrix}.
+$$
+
+\newpage
+Теперь проведём обратный ход, записывая ответ в вектор $X$:
+\begin{align*}
+X_{p[k+1]} &= B_{k+1}, \\
+X_{p[k]} &= B_k - A_{k,k+1}X_{p[k+1]}, \\
+X_{p[k-1]} &= B_{k-1} - A_{k-1,k+1}X_{p[k+1]} - A_{k-1,k}X_{p[k]}, \\
+&\dots \\
+X_{p[j]} &= B_j - \sum_{i=0}^{k-j} A_{j,k+1-i}X_{p[k+1-i]}.
+\end{align*}
+
+\begin{algorithm}
+\caption{Основной цикл, $s$-ый шаг}
+\begin{algorithmic}[1]
+\State $swap(A_{ss},A_{i_0j_0})$
+\State // Меняем 1-ю и $i_0$-ю строки в матрице и правой части, а также 1-й и $j_0$-й столбцы матрицы 
+\State // (имеются в виду строки и столбцы блоков)
+\State $p[s] = j_0$ // Запоминаем перестановку столбцов
+\State $C \gets get\_block(A_{ss})$
+\State $B \gets inverse(C)$
+\State // Если обратной матрицы не существует, программа завершается
+\For{$i = s+1$ to $k$}
+    \State $G \gets get\_block(A_{si})$
+    \State $D \gets mult(B,\ G)$ // Умножение матриц $m\times m \times m\times m$
+    \State $set\_block(A_{si},\ D)$
+\EndFor
+\State $ C \gets get\_block(A_{s,k+1})$
+\State $D \gets mult(B,\ C)$ // Умножение матриц $m\times m \times m\times l$
+\State $ set\_block(A_{s,k+1},\ D)$
+\State // bl = k, если l==0, иначе k+1
+\For{$i = s+1$ to $bl$}
+    \State $C \gets get\_block(A_{is})$
+    \For{$j = s+1$ to $bl$}
+        \State $ D \gets get\_block(A_{sj})$
+        \State $F \gets get\_block(A_{ij})$
+        \State $M \gets mult(C,\ D)$
+        \State $G \gets sub(F,\ M)$ // Вычитание матриц
+        \State $set\_block(A_{ij},\ G)$
+    \EndFor
+\EndFor
+\State // Если i=k+1 или j=k+1, цикл корректно обрабатывается
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+\section{Сложность алгоритма}
+Алгоритм зависит от двух параметров $n$ и $m$. Сложность выражается как:
+$$
+S(n,m) = c_1n^3+c_2m^3+c_3n^2m+c_4nm^2+O(n^2+nm+m^2).
+$$
+Требуется найти константы $c_1,c_2,c_3,c_4$. Заметим, что перестановка строк, столбцов и обратный ход дают вклад $O(n^2+nm+m^2)$. Положим $k = \frac{n}{m}$.
+
+\subsection{Поиск главного элемента}
+\begin{align*}
+m^3\sum_{s=1}^{k}{(k-s+1)^2} &= m^3\frac{k(k+1)(2k+1)}{6} = \frac{n(n+m)(2n+m)}{6} = \frac{(n^2+nm)(2n+m)}{6} \\
+&= \frac{2n^3+n^2m+2n^2m+nm^2}{6} = \frac{1}{3}n^3+\frac{1}{2}n^2m+\frac{1}{6}nm^2.
+\end{align*}
+
+\subsection{Обращение главного элемента}
+\begin{align*}
+m^3\sum_{s=1}^{k}{1} = m^3k = m^2n.
+\end{align*}
+
+\subsection{Домножение на строку}
+\begin{align*}
+2m^3\sum_{s=1}^{k}{(k-s)} = 2m^3\frac{(k-1)k}{2} = m(n-m)n = mn^2-m^2n.
+\end{align*}
+
+\subsection{Обнуление столбца}
+\begin{align*}
+2m^3\sum_{s=1}^{k}{(k-s)^2} &= 2m^3\frac{k(k-1)(2k-1)}{6} = \frac{1}{3}n(n-m)(2n-m) = \frac{1}{3}(n^2-nm)(2n-m) \\
+&= \frac{1}{3}(2n^3-n^2m-2n^2m+nm^2) = \frac{2}{3}n^3-n^2m+\frac{1}{3}nm^2.
+\end{align*}
+
+Итоговая сложность:
+$$
+S(n,m) = n^3+\frac{1}{2}n^2m+\frac{1}{2}nm^2+O(n^2+nm+m^2).
+$$
+
+Проверка: $S(n,1) = S(n)$, $S(n,n) = S(n)+n^3$.
+
+\end{document}
