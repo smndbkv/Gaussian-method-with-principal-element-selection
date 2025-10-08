@@ -27,6 +27,6 @@ bool main_element(double *a, int n, int m, int s, double *c, double *c_inv,
 void swap(double *a, int n, int m, double *b, int s, int i, int j);
 void add(double *a, double *b, int n, int m, double *c);
 void sub(double *a, double *b, int n, int m, double *c);
-int gauss_method(int n, int m, double *a, double *b, double *x);
+int gauss_method(int n, int m, double *a, double *b, double *x, double *c, double *g, double *d, double *f, int *p);
 
 #endif

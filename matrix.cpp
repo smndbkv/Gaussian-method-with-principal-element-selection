@@ -722,17 +722,17 @@ void sub(double *a, double *b, int n, int m, double *c)
   }
 }
 
-int gauss_method(int n, int m, double *a, double *b, double *x)
+int gauss_method(int n, int m, double *a, double *b, double *x, double *c, double *g, double *d, double *f, int *p)
 {
   int k, l, bl, v, h, i0, j0, v_g, h_g, h_d;
   int s, i, j; // для циклов
-  double *c = new double[m * m], *g = new double[m * m],
-         *d = new double[m * m], *f = new double[m * m];
-  int *p;
+  // double *c = new double[m * m], *g = new double[m * m],
+  //        *d = new double[m * m], *f = new double[m * m];
+  // int *p;
   k = n / m;
   l = n % m;
   bl = (l != 0 ? k + 1 : k);
-  p = new int[bl];
+  // p = new int[bl];
   for (i = 0; i < bl; i++)
   {
     p[i] = i;
@@ -743,11 +743,7 @@ int gauss_method(int n, int m, double *a, double *b, double *x)
     // printf("----------Step %d-----------\n", s);
     if (!main_element(a, n, m, s, c, g, i0, j0))
     {
-      delete[] c;
-      delete[] g;
-      delete[] d;
-      delete[] p;
-      delete[] f;
+
       return -1;
     }
     // print(a, n);
@@ -823,11 +819,6 @@ int gauss_method(int n, int m, double *a, double *b, double *x)
     // printf("\n");
     if (!inverse(c, v, g))
     {
-      delete[] c;
-      delete[] g;
-      delete[] d;
-      delete[] p;
-      delete[] f;
       return -1;
     }
     // g - обратная к с
@@ -893,10 +884,5 @@ int gauss_method(int n, int m, double *a, double *b, double *x)
 
   // print(x, 1, n);
 
-  delete[] c;
-  delete[] g;
-  delete[] d;
-  delete[] p;
-  delete[] f;
   return 1;
 }

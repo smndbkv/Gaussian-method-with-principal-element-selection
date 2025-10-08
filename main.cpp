@@ -2,11 +2,18 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <fenv.h>
+int feenableexcept(int excepts);
+int fedisableexcept(int excepts);
+int fegetexcept(void);
+
 int main(int argc, char **argv)
 {
   int n = 0, m = 0, r = 0, s = 0;
   double t1 = 0, t2 = 0, r1 = 0, r2 = 0;
   char *file_name = nullptr;
+
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 
   if (!((argc == 5 || argc == 6) && sscanf(argv[1], "%d", &n) == 1 && sscanf(argv[2], "%d", &m) == 1 && sscanf(argv[3], "%d", &r) == 1 && sscanf(argv[4], "%d", &s) == 1 && s >= 0 && s <= 4))
   {
@@ -57,7 +64,11 @@ int main(int argc, char **argv)
   print_matrix(x_exact, 1, n, r);
 
   t1 = clock();
-  if (gauss_method(n, m, a, b, x) != 1)
+
+  double *c = new double[m * m], *g = new double[m * m],
+         *d = new double[m * m], *f = new double[m * m];
+  int *p = new int[(n % m != 0 ? n / m + 1 : n / m)];
+  if (gauss_method(n, m, a, b, x, c, g, d, f, p) != 1)
   {
     printf("This solution method is not applicable to this matrix.\n");
     printf("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = "
@@ -67,8 +78,14 @@ int main(int argc, char **argv)
     delete[] b;
     delete[] x;
     delete[] x_exact;
+    delete[] c;
+    delete[] g;
+    delete[] d;
+    delete[] f;
+    delete[] p;
     return -4;
   }
+
   t1 = (clock() - t1) / CLOCKS_PER_SEC;
 
   printf("Solution vector:\n");
@@ -90,5 +107,10 @@ int main(int argc, char **argv)
   delete[] b;
   delete[] x;
   delete[] x_exact;
+  delete[] c;
+  delete[] g;
+  delete[] d;
+  delete[] f;
+  delete[] p;
   return 0;
 }
