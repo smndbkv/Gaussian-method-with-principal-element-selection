@@ -18,8 +18,7 @@ double f(int s, int n, int i, int j);
 double dot_product(double *a, double *b, int n);
 double get_r1(double *a, double *x, double *b, int n);
 double get_r2(double *x, double *x_exact, int n);
-void multy(double *pa, double *pb, int v, int ah, int h, double *pc);
-inline __attribute__((always_inline)) void multy_slow(double *a, double *b, int n, int m, int l, double *c);
+inline __attribute__((always_inline)) void multy(double *a, double *b, int n, int m, int l, double *c);
 void multy_right(double *g, double *b, int v, int h, double *d);
 bool inverse(double *a, int n, double *c, double nrm_a);
 bool main_element(double *a, int n, int m, int s, double *c, double *c_inv,

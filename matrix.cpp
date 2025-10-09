@@ -298,7 +298,7 @@ get_r2(double *x, double *x_exact, int n)
   return s1 / s2;
 }
 
-void multy_slow(double *a, double *b, int n, int p, int m, double *c)
+void multy(double *a, double *b, int n, int p, int m, double *c)
 {
   int i, j, k;
   double s, s00, s01, s02, s10, s11, s12, s20, s21, s22, a0, a1, a2, b0, b1, b2;
@@ -611,7 +611,7 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
       get_block(a, n, m, s, i, c, v, h);
       // print(c, v, h);
       // printf("\n");
-      multy_slow(g, c, v, v, h, d);
+      multy(g, c, v, v, h, d);
       // print(d, v, h);
       // printf("\n");
       set_block(a, n, m, s, i, d, v, h);
@@ -651,10 +651,10 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
             g[q] = 0;
           }
         }
-        multy_slow(c, g, v, h, h_g, d);
+        multy(c, g, v, h, h_g, d);
         get_block(a, n, m, i, j, g, v_g, h_g);
-        sub(g, d, v, h_g, f);
-        set_block(a, n, m, i, j, f, v, h_g);
+        sub(g, d, v, h_g, g);
+        set_block(a, n, m, i, j, g, v, h_g);
       }
       // домножаем правую часть
       get_right(b, n, m, s, g, h_g);
