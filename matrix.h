@@ -21,12 +21,12 @@ double get_r2(double *x, double *x_exact, int n);
 void multy(double *pa, double *pb, int v, int ah, int h, double *pc);
 inline __attribute__((always_inline)) void multy_slow(double *a, double *b, int n, int m, int l, double *c);
 void multy_right(double *g, double *b, int v, int h, double *d);
-bool inverse(double *a, int n, double *c);
+bool inverse(double *a, int n, double *c, double nrm_a);
 bool main_element(double *a, int n, int m, int s, double *c, double *c_inv,
-                  int &res_i, int &res_j);
+                  int &res_i, int &res_j, double nrm_a);
 void swap(double *a, int n, int m, double *b, int s, int i, int j);
 void add(double *a, double *b, int n, int m, double *c);
 void sub(double *a, double *b, int n, int m, double *c);
-int gauss_method(int n, int m, double *a, double *b, double *x, double *c, double *g, double *d, double *f, int *p);
+gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double *c, double *g, double *d, double *f, int *p);
 
 #endif

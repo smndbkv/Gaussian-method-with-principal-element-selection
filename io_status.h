@@ -19,4 +19,11 @@ typedef enum io_status_
 	ERROR_OPEN,
 	ERROR_READ
 } io_status;
+typedef enum gauss_status_
+{
+	DONE,
+	ZERO_MATRIX,
+	NOT_APPLICABLE
+} gauss_status;
+
 #endif

@@ -39,12 +39,12 @@ int main(int argc, char **argv)
   io_status st = init_matrix(a, n, s, b, x_exact, file_name);
   switch (st)
   {
-  case SUCCESS:
+  case io_status::SUCCESS:
     break;
-  case ERROR_OPEN:
+  case io_status::ERROR_OPEN:
     printf("Cannot open %s\n", file_name);
     break;
-  case ERROR_READ:
+  case io_status::ERROR_READ:
     printf("Cannot read %s\n", file_name);
     break;
   }
@@ -68,9 +68,21 @@ int main(int argc, char **argv)
   double *c = new double[m * m], *g = new double[m * m],
          *d = new double[m * m], *f = new double[m * m];
   int *p = new int[(n % m != 0 ? n / m + 1 : n / m)];
-  if (gauss_method(n, m, a, b, x, c, g, d, f, p) != 1)
+
+  gauss_status g_st = gauss_method(n, m, a, b, x, c, g, d, f, p);
+  switch (g_st)
   {
-    printf("This solution method is not applicable to this matrix.\n");
+  case gauss_status::DONE:
+    break;
+  case gauss_status::ZERO_MATRIX:
+    printf("Initial matrix is zero\n");
+    break;
+  case gauss_status::NOT_APPLICABLE:
+    printf("This solution method is not applicable to this matrix\n");
+    break;
+  }
+  if (g_st != gauss_status::DONE)
+  {
     printf("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = "
            "%d M = %d\n",
            argv[0], 11, 0., 0., 0., 0., s, n, m);
