@@ -310,7 +310,7 @@ void multy_slow(double *a, double *b, int n, int p, int m, double *c)
   {
     for (j = 0; j < m3; j += 3)
     {
-      s00 = s01 = s02 = s10 = s11 = s12 = s20 = s21 = s22 = 0.0;
+      s00 = s01 = s02 = s10 = s11 = s12 = s20 = s21 = s22 = 0;
 
       for (k = 0; k < p; k++)
       {
