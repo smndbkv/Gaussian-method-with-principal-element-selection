@@ -2,10 +2,10 @@
 #include <iostream>
 #include <stdio.h>
 
-// #include <fenv.h>
-// int feenableexcept(int excepts);
-// int fedisableexcept(int excepts);
-// int fegetexcept(void);
+#include <fenv.h>
+int feenableexcept(int excepts);
+int fedisableexcept(int excepts);
+int fegetexcept(void);
 
 int main(int argc, char **argv)
 {
@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   double t1 = 0, t2 = 0, r1 = 0, r2 = 0;
   char *file_name = nullptr;
 
-  // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 
   if (!((argc == 5 || argc == 6) && sscanf(argv[1], "%d", &n) == 1 && sscanf(argv[2], "%d", &m) == 1 && sscanf(argv[3], "%d", &r) == 1 && sscanf(argv[4], "%d", &s) == 1 && s >= 0 && s <= 4))
   {
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
   {
     printf("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = "
            "%d M = %d\n",
-           argv[0], 11, 0., 0., 0., 0., s, n, m);
+           argv[0], 11, -1., -1., 0., 0., s, n, m);
     delete[] a;
     delete[] b;
     delete[] x;

@@ -275,7 +275,7 @@ get_r1(double *a, double *x, double *b, int n)
     s1 += fabs(dot_product(a + i * n, x, n) - b[i]);
     s2 += fabs(b[i]);
   }
-  if (fabs(s2) < EPS)
+  if (CMP(s2, 0))
   {
     return -1;
   }
@@ -291,7 +291,7 @@ get_r2(double *x, double *x_exact, int n)
     s1 += fabs(x[i] - x_exact[i]);
     s2 += fabs(x_exact[i]);
   }
-  if (fabs(s2) < EPS)
+  if (CMP(s2, 0))
   {
     return -1;
   }
@@ -434,7 +434,7 @@ inline bool inverse(double *a, int n, double *c, double nrm_a)
     {
       if (fabs(a[k * n + i]) > max)
       {
-        max = a[k * n + i];
+        max = fabs(a[k * n + i]);
         max_i = k;
       }
     }
@@ -472,6 +472,32 @@ inline bool inverse(double *a, int n, double *c, double nrm_a)
         }
       }
     }
+    // for (k = 0; k < n; ++k)
+    // {
+    //   if (k != i)
+    //   {
+    //     d = a[k * n + i];
+
+    //     // Обработка блоками по 3 элемента
+    //     for (j = 0; j < n - 2; j += 3)
+    //     {
+    //       a[k * n + j] -= d * a[i * n + j];
+    //       a[k * n + j + 1] -= d * a[i * n + j + 1];
+    //       a[k * n + j + 2] -= d * a[i * n + j + 2];
+
+    //       c[k * n + j] -= d * c[i * n + j];
+    //       c[k * n + j + 1] -= d * c[i * n + j + 1];
+    //       c[k * n + j + 2] -= d * c[i * n + j + 2];
+    //     }
+
+    //     // Обработка остатка
+    //     for (; j < n; ++j)
+    //     {
+    //       a[k * n + j] -= d * a[i * n + j];
+    //       c[k * n + j] -= d * c[i * n + j];
+    //     }
+    //   }
+    // }
   }
 
   return true;
@@ -482,7 +508,7 @@ inline bool main_element(double *a, int n, int m, int s, double *c, double *c_in
 {
   // ищем блок с минимальной нормой обратной матрицы
   int k = n / m, i, j;
-  double min, nrm = 0;
+  double min = 0, nrm = 0;
   bool flag = true;
   for (i = s; i < k; i++)
   {
@@ -568,10 +594,10 @@ void sub(double *a, double *b, int n, int m, double *c)
 
 gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double *c, double *g, double *d, double *f, int *p)
 {
-  int k, l, bl, v, h, i0, j0, v_g, h_g, h_d;
+  int k, l, bl, v, h, i0 = 0, j0 = 0, v_g, h_g, h_d;
   int s, i, j; // для циклов
   double nrm_a = norm(a, n);
-  if (fabs(nrm_a) < EPS) // нулевая матрица
+  if (fabs(nrm_a) < EPS_64) // нулевая матрица
   {
     return gauss_status::ZERO_MATRIX;
   }
@@ -628,15 +654,13 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
     for (i = s + 1; i < bl; i++)
     {
       get_block(a, n, m, i, s, c, v, h);
-
       for (int q = 0; q < v * h; q++)
       {
-        if (fabs(c[q]) < EPS)
+        if (fabs(c[q]) < EPS_64)
         {
           c[q] = 0;
         }
       }
-
       // printf("c = ");
       // printf("v = %d, h = %d, i = %d, s = %d\n", v, h, i, s);
       // print(c, v, h);
@@ -646,7 +670,7 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
         get_block(a, n, m, s, j, g, v_g, h_g);
         for (int q = 0; q < v_g * h_g; q++)
         {
-          if (fabs(g[q]) < EPS)
+          if (fabs(g[q]) < EPS_64)
           {
             g[q] = 0;
           }

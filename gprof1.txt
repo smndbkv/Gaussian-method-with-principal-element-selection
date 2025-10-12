@@ -1,0 +1,277 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 68.65     26.74    26.74    13090     0.00     0.00  multy(double*, double*, int, int, int, double*)
+ 20.80     34.84     8.10    12563     0.00     0.00  inverse(double*, int, double*, double)
+  5.44     36.96     2.12    39304     0.00     0.00  get_block(double*, int, int, int, int, double*, int&, int&)
+  1.36     37.49     0.53    13090     0.00     0.00  set_block(double*, int, int, int, int, double*, int, int)
+  1.21     37.96     0.47    13123     0.00     0.00  sub(double*, double*, int, int, double*)
+  0.87     38.30     0.34        1     0.34    38.55  gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*)
+  0.41     38.46     0.16       33     0.00     0.00  swap(double*, int, int, double*, int, int, int)
+  0.39     38.61     0.15        2     0.07     0.17  init_matrix(double*, int, int, double*, double*, char const*)
+  0.33     38.74     0.13 32000000     0.00     0.00  f(int, int, int, int)
+  0.18     38.81     0.07 32000000     0.00     0.00  int const& std::max<int>(int const&, int const&)
+  0.15     38.87     0.06      562     0.00     0.00  norm(double*, int)
+  0.13     38.92     0.05     4000     0.00     0.00  dot_product(double*, double*, int)
+  0.08     38.95     0.03     1156     0.00     0.00  multy_right(double*, double*, int, int, double*)
+  0.00     38.95     0.00     1751     0.00     0.00  get_right(double*, int, int, int, double*, int&)
+  0.00     38.95     0.00      629     0.00     0.00  set_right(double*, int, int, double*, int)
+  0.00     38.95     0.00      561     0.00     0.00  add(double*, double*, int, int, double*)
+  0.00     38.95     0.00       99     0.00     0.00  std::remove_reference<int&>::type&& std::move<int&>(int&)
+  0.00     38.95     0.00       33     0.00     0.27  main_element(double*, int, int, int, double*, double*, int&, int&, double)
+  0.00     38.95     0.00       33     0.00     0.00  std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<int> >, std::is_move_constructible<int>, std::is_move_assignable<int> >::value, void>::type std::swap<int>(int&, int&)
+  0.00     38.95     0.00        8     0.00     0.00  int const& std::min<int>(int const&, int const&)
+  0.00     38.95     0.00        4     0.00     0.00  print_matrix(double*, int, int, int)
+  0.00     38.95     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     38.95     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00     38.95     0.00        1     0.00     0.05  get_r1(double*, double*, double*, int)
+  0.00     38.95     0.00        1     0.00     0.00  get_r2(double*, double*, int)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 0.03% of 38.95 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00   38.95                 main [1]
+                0.34   38.21       1/1           gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+                0.15    0.20       2/2           init_matrix(double*, int, int, double*, double*, char const*) [9]
+                0.00    0.05       1/1           get_r1(double*, double*, double*, int) [15]
+                0.00    0.00       4/4           print_matrix(double*, int, int, int) [29]
+                0.00    0.00       1/1           get_r2(double*, double*, int) [32]
+-----------------------------------------------
+                0.34   38.21       1/1           main [1]
+[2]     99.0    0.34   38.21       1         gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+               26.74    0.00   13090/13090       multy(double*, double*, int, int, int, double*) [3]
+                0.00    8.81      33/33          main_element(double*, int, int, int, double*, double*, int&, int&, double) [4]
+                1.44    0.00   26775/39304       get_block(double*, int, int, int, int, double*, int&, int&) [6]
+                0.53    0.00   13090/13090       set_block(double*, int, int, int, int, double*, int, int) [7]
+                0.47    0.00   13123/13123       sub(double*, double*, int, int, double*) [8]
+                0.16    0.00      33/33          swap(double*, int, int, double*, int, int, int) [11]
+                0.03    0.00    1156/1156        multy_right(double*, double*, int, int, double*) [16]
+                0.02    0.00      34/12563       inverse(double*, int, double*, double) [5]
+                0.00    0.00       1/562         norm(double*, int) [13]
+                0.00    0.00    1751/1751        get_right(double*, int, int, int, double*, int&) [23]
+                0.00    0.00     629/629         set_right(double*, int, int, double*, int) [24]
+                0.00    0.00     561/561         add(double*, double*, int, int, double*) [25]
+                0.00    0.00      33/33          std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<int> >, std::is_move_constructible<int>, std::is_move_assignable<int> >::value, void>::type std::swap<int>(int&, int&) [27]
+-----------------------------------------------
+               26.74    0.00   13090/13090       gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[3]     68.7   26.74    0.00   13090         multy(double*, double*, int, int, int, double*) [3]
+-----------------------------------------------
+                0.00    8.81      33/33          gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[4]     22.6    0.00    8.81      33         main_element(double*, int, int, int, double*, double*, int&, int&, double) [4]
+                8.08    0.00   12529/12563       inverse(double*, int, double*, double) [5]
+                0.68    0.00   12529/39304       get_block(double*, int, int, int, int, double*, int&, int&) [6]
+                0.06    0.00     561/562         norm(double*, int) [13]
+-----------------------------------------------
+                0.02    0.00      34/12563       gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+                8.08    0.00   12529/12563       main_element(double*, int, int, int, double*, double*, int&, int&, double) [4]
+[5]     20.8    8.10    0.00   12563         inverse(double*, int, double*, double) [5]
+-----------------------------------------------
+                0.68    0.00   12529/39304       main_element(double*, int, int, int, double*, double*, int&, int&, double) [4]
+                1.44    0.00   26775/39304       gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[6]      5.4    2.12    0.00   39304         get_block(double*, int, int, int, int, double*, int&, int&) [6]
+-----------------------------------------------
+                0.53    0.00   13090/13090       gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[7]      1.4    0.53    0.00   13090         set_block(double*, int, int, int, int, double*, int, int) [7]
+-----------------------------------------------
+                0.47    0.00   13123/13123       gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[8]      1.2    0.47    0.00   13123         sub(double*, double*, int, int, double*) [8]
+-----------------------------------------------
+                0.15    0.20       2/2           main [1]
+[9]      0.9    0.15    0.20       2         init_matrix(double*, int, int, double*, double*, char const*) [9]
+                0.13    0.07 32000000/32000000     f(int, int, int, int) [10]
+-----------------------------------------------
+                0.13    0.07 32000000/32000000     init_matrix(double*, int, int, double*, double*, char const*) [9]
+[10]     0.5    0.13    0.07 32000000         f(int, int, int, int) [10]
+                0.07    0.00 32000000/32000000     int const& std::max<int>(int const&, int const&) [12]
+-----------------------------------------------
+                0.16    0.00      33/33          gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[11]     0.4    0.16    0.00      33         swap(double*, int, int, double*, int, int, int) [11]
+-----------------------------------------------
+                0.07    0.00 32000000/32000000     f(int, int, int, int) [10]
+[12]     0.2    0.07    0.00 32000000         int const& std::max<int>(int const&, int const&) [12]
+-----------------------------------------------
+                0.00    0.00       1/562         gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+                0.06    0.00     561/562         main_element(double*, int, int, int, double*, double*, int&, int&, double) [4]
+[13]     0.2    0.06    0.00     562         norm(double*, int) [13]
+-----------------------------------------------
+                0.05    0.00    4000/4000        get_r1(double*, double*, double*, int) [15]
+[14]     0.1    0.05    0.00    4000         dot_product(double*, double*, int) [14]
+-----------------------------------------------
+                0.00    0.05       1/1           main [1]
+[15]     0.1    0.00    0.05       1         get_r1(double*, double*, double*, int) [15]
+                0.05    0.00    4000/4000        dot_product(double*, double*, int) [14]
+-----------------------------------------------
+                0.03    0.00    1156/1156        gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[16]     0.1    0.03    0.00    1156         multy_right(double*, double*, int, int, double*) [16]
+-----------------------------------------------
+                0.00    0.00    1751/1751        gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[23]     0.0    0.00    0.00    1751         get_right(double*, int, int, int, double*, int&) [23]
+-----------------------------------------------
+                0.00    0.00     629/629         gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[24]     0.0    0.00    0.00     629         set_right(double*, int, int, double*, int) [24]
+-----------------------------------------------
+                0.00    0.00     561/561         gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[25]     0.0    0.00    0.00     561         add(double*, double*, int, int, double*) [25]
+-----------------------------------------------
+                0.00    0.00      99/99          std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<int> >, std::is_move_constructible<int>, std::is_move_assignable<int> >::value, void>::type std::swap<int>(int&, int&) [27]
+[26]     0.0    0.00    0.00      99         std::remove_reference<int&>::type&& std::move<int&>(int&) [26]
+-----------------------------------------------
+                0.00    0.00      33/33          gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [2]
+[27]     0.0    0.00    0.00      33         std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<int> >, std::is_move_constructible<int>, std::is_move_assignable<int> >::value, void>::type std::swap<int>(int&, int&) [27]
+                0.00    0.00      99/99          std::remove_reference<int&>::type&& std::move<int&>(int&) [26]
+-----------------------------------------------
+                0.00    0.00       8/8           print_matrix(double*, int, int, int) [29]
+[28]     0.0    0.00    0.00       8         int const& std::min<int>(int const&, int const&) [28]
+-----------------------------------------------
+                0.00    0.00       4/4           main [1]
+[29]     0.0    0.00    0.00       4         print_matrix(double*, int, int, int) [29]
+                0.00    0.00       8/8           int const& std::min<int>(int const&, int const&) [28]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I_main [34]
+[30]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [30]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z11init_matrixPdiiS_S_PKc [33]
+[31]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [31]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[32]     0.0    0.00    0.00       1         get_r2(double*, double*, int) [32]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2022 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [14] dot_product(double*, double*, int) [30] __static_initialization_and_destruction_0(int, int) (main.cpp) [23] get_right(double*, int, int, int, double*, int&)
+   [9] init_matrix(double*, int, int, double*, double*, char const*) [31] __static_initialization_and_destruction_0(int, int) (matrix.cpp) [7] set_block(double*, int, int, int, int, double*, int, int)
+  [16] multy_right(double*, double*, int, int, double*) [13] norm(double*, int) [24] set_right(double*, int, int, double*, int)
+   [2] gauss_method(int, int, double*, double*, double*, double*, double*, double*, double*, int*) [11] swap(double*, int, int, double*, int, int, int) [12] int const& std::max<int>(int const&, int const&)
+   [4] main_element(double*, int, int, int, double*, double*, int&, int&, double) [3] multy(double*, double*, int, int, int, double*) [28] int const& std::min<int>(int const&, int const&)
+  [29] print_matrix(double*, int, int, int) [15] get_r1(double*, double*, double*, int) [26] std::remove_reference<int&>::type&& std::move<int&>(int&)
+  [10] f(int, int, int, int)  [32] get_r2(double*, double*, int) [27] std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<int> >, std::is_move_constructible<int>, std::is_move_assignable<int> >::value, void>::type std::swap<int>(int&, int&)
+  [25] add(double*, double*, int, int, double*) [5] inverse(double*, int, double*, double)
+   [8] sub(double*, double*, int, int, double*) [6] get_block(double*, int, int, int, int, double*, int&, int&)
