@@ -619,12 +619,12 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
       return gauss_status::NOT_APPLICABLE;
     }
     // print(a, n);
-    // printf("i0 = %d, j0 = %d\n", i0, j0);
+    //  printf("i0 = %d, j0 = %d\n", i0, j0);
     swap(a, n, m, b, s, i0, j0);
     // print(a, n);
-    // printf("\n");
-    // print(b, 1, n);
-    // printf("\n");
+    //  printf("\n");
+    //  print(b, 1, n);
+    //  printf("\n");
     std::swap(p[s], p[j0]);
     get_block(a, n, m, s, s, c, v, v); // с - квадратная, v = h
     inverse(c, v, g, nrm_a);

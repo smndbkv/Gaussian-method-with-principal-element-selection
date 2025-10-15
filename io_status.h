@@ -1,7 +1,7 @@
 #ifndef IO_STATUS_H
 #define IO_STATUS_H
 #define EPS_64 (1e-64)
-#define EPS (1e-16)
+#define EPS (1e-15)
 #define LEN (1234)
 #define CMP(x, y) \
 	((fabs(((x) - (y))) <= fabs(((0.5) * (EPS) * ((x) + (y))))) ? 1 : 0)
