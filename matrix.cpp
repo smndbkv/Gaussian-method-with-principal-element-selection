@@ -592,6 +592,19 @@ void sub(double *a, double *b, int n, int m, double *c)
   }
 }
 
+bool is_zero(double *c, int v, int h, double nrm_a)
+{
+  bool fl = true;
+  for (int q = 0; q < v * h; q++)
+  {
+    if (fabs(c[q]) >= EPS * nrm_a)
+    {
+      fl = false;
+    }
+  }
+  return fl;
+}
+
 gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double *c, double *g, double *d, double *f, int *p)
 {
   int k, l, bl, v, h, i0 = 0, j0 = 0, v_g, h_g, h_d;
@@ -609,7 +622,7 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
   {
     p[i] = i;
   }
-
+  (void)i0, (void)j0;
   for (s = 0; s < k; s++)
   {
     // printf("----------Step %d-----------\n", s);
@@ -619,12 +632,12 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
       return gauss_status::NOT_APPLICABLE;
     }
     // print(a, n);
-    //  printf("i0 = %d, j0 = %d\n", i0, j0);
+    // printf("i0 = %d, j0 = %d\n", i0, j0);
     swap(a, n, m, b, s, i0, j0);
     // print(a, n);
-    //  printf("\n");
-    //  print(b, 1, n);
-    //  printf("\n");
+    // printf("\n");
+    // print(b, 1, n);
+    // printf("\n");
     std::swap(p[s], p[j0]);
     get_block(a, n, m, s, s, c, v, v); // с - квадратная, v = h
     inverse(c, v, g, nrm_a);
@@ -646,6 +659,8 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
     get_right(b, n, m, s, c, h);
     multy_right(g, c, v, h, d);
     set_right(b, m, s, d, h);
+
+    // printf("матрица после умножения на обратную\n");
     // print(a, n);
     // printf("\n");
     // print(b, 1, n);
@@ -661,8 +676,12 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
           c[q] = 0;
         }
       }
-      // printf("c = ");
-      // printf("v = %d, h = %d, i = %d, s = %d\n", v, h, i, s);
+      // if (is_zero(c, v, h, nrm_a))
+      // {
+      //   continue;
+      // }
+      //   printf("c = ");
+      //   printf("v = %d, h = %d, i = %d, s = %d\n", v, h, i, s);
       // print(c, v, h);
       // printf("\n");
       for (j = s + 1; j < bl; j++)
@@ -675,6 +694,10 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
             g[q] = 0;
           }
         }
+        // if (is_zero(g, v_g, h_g, nrm_a))
+        // {
+        //   continue;
+        // }
         multy(c, g, v, h, h_g, d);
         get_block(a, n, m, i, j, g, v_g, h_g);
         sub(g, d, v, h_g, g);
@@ -731,9 +754,9 @@ gauss_status gauss_method(int n, int m, double *a, double *b, double *x, double 
   // }
 
   // print(a, n);
-  // printf("\n");
-  // print(b, 1, n);
-  // printf("\n");
+  //  printf("\n");
+  //  print(b, 1, n);
+  //  printf("\n");
   get_right(b, n, m, bl - 1, c, h);
   set_right(x, m, p[bl - 1], c, h);
   // print(x, 1, n);
