@@ -37,7 +37,7 @@ int main(int argc, char **argv)
   }
   if (argc == 7)
   {
-    file_name = argv[5];
+    file_name = argv[6];
   }
   else if (argc == 6 && s == 0)
   {
@@ -93,6 +93,7 @@ int main(int argc, char **argv)
   double *min_norm = new double[p];
   int *min_i = new int[p];
   int *min_j = new int[p];
+  double *inv = new double[m * m];
   for (int q = 0; q < p; q++)
   {
     Arg[q].a = a;
@@ -108,9 +109,12 @@ int main(int argc, char **argv)
     Arg[q].min_i = min_i;
     Arg[q].min_j = min_j;
     Arg[q].barrier = &barrier;
+    Arg[q].inv = inv;
   }
 
   t1 = clock();
+  struct timespec start_t1, end_t1;
+  clock_gettime(CLOCK_MONOTONIC, &start_t1);
 
   for (int q = 1; q < p; q++)
   {
@@ -125,7 +129,10 @@ int main(int argc, char **argv)
   {
     pthread_join(tid[k], 0);
   }
-
+  t1 = (clock() - t1) / CLOCKS_PER_SEC;
+  clock_gettime(CLOCK_MONOTONIC, &end_t1);
+  t1 = (end_t1.tv_sec - start_t1.tv_sec) * 1e9;
+  t1 = (t1 + (end_t1.tv_nsec - start_t1.tv_nsec)) * 1e-9;
   for (int q = 0; q < p; q++)
   {
     switch (err[q])
@@ -187,8 +194,6 @@ int main(int argc, char **argv)
   //   return -4;
   // }
 
-  t1 = (clock() - t1) / CLOCKS_PER_SEC;
-
   printf("Solution vector:\n");
   print_matrix(x, 1, n, r);
 
@@ -200,9 +205,9 @@ int main(int argc, char **argv)
   r2 = get_r2(x, x_exact, n);
   t2 = (clock() - t2) / CLOCKS_PER_SEC;
 
-  printf("%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = "
-         "%d M = %d\n",
-         argv[0], 11, r1, r2, t1, t2, s, n, m);
+  printf(
+      "%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = %d M = %d P = %d\n",
+      argv[0], 11, r1, r2, t1, t2, s, n, m, p);
 
   delete[] a;
   delete[] b;

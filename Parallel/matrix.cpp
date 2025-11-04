@@ -542,28 +542,52 @@ inline bool main_element(double *a, int n, int m, int s, double *c, double *c_in
   return !flag;
 }
 
-inline void swap(double *a, int n, int m, double *b, int s, int i0,
-                 int j0) // переставляет на s-ом шаге блочные строки s и i0 в матрице и
-                         // правой части, столбцы s и j0 в матрице
+void swap(double *a, int n, int m, double *b, int s, int i0,
+          int j0, int p, int q, pthread_barrier_t *barrier) // переставляет на s-ом шаге блочные строки s и i0 в матрице и
+                                                            // правой части, столбцы s и j0 в матрице
 {
   int i, j;
+  (void)j0;
+  // int start = p * ((p - 1 + s - q) / p) + q;
+  //   int l = n % m;
+  //    int bl = (l == 0 ? n / m : n / m + 1);
+  int len = (n - s * m) / p;
   if (i0 != s)
   {
-    for (i = 0; i < m; i++)
+    if (q != p - 1)
     {
-      for (j = 0; j < n - s * m; j++)
+      for (i = 0; i < m; i++)
       {
-        SWAP(a[n * (m * i0 + i) + m * s + j],
-             a[n * (m * s + i) + m * s + j]);
+
+        for (j = q * len; j < (q + 1) * len; j++)
+        {
+          SWAP(a[n * (m * i0 + i) + m * s + j],
+               a[n * (m * s + i) + m * s + j]);
+        }
       }
-      SWAP(b[m * s + i], b[m * i0 + i]);
+    }
+    else
+    {
+      for (i = 0; i < m; i++)
+      {
+
+        for (j = q * len; j < n - s * m; j++)
+        {
+          SWAP(a[n * (m * i0 + i) + m * s + j],
+               a[n * (m * s + i) + m * s + j]);
+        }
+
+        SWAP(b[m * s + i], b[m * i0 + i]);
+      }
     }
   }
+  pthread_barrier_wait(barrier); // Точка синхронизации
+
   if (j0 != s)
   {
     for (j = 0; j < m; j++)
     {
-      for (i = 0; i < n; i++)
+      for (i = q; i < n; i += p)
       {
         SWAP(a[m * j0 + n * i + j],
              a[m * s + n * i + j]);
@@ -615,6 +639,7 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
   int n = Arg->n, m = Arg->m, p = Arg->p, q = Arg->q;
   int *per = Arg->per;
   int k, l, bl, v, h, v_g, h_g, h_d;
+  k = l = bl = v = h = v_g = h_g = h_d = 0;
   int s, i, j; // для циклов
   double nrm_a = norm(a, n);
   if (fabs(nrm_a) < EPS_64) // нулевая матрица
@@ -637,8 +662,7 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
     {
       err[q] = gauss_status::NOT_APPLICABLE;
     }
-    // Arg->reduce_sum(); // Точка синхронизации
-    pthread_barrier_wait(Arg->barrier);
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
     // printf("q = %d\n", q);
     // print(a, n);
     int ind = 0;
@@ -666,35 +690,52 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
         ind = i;
       }
     }
-    // pthread_barrier_wait(Arg->barrier);
-    if (q == 0)
-    {
-      for (i = 0; i < p; i++)
-      {
-        err[i] = gauss_status::DONE;
-        // Arg->min_norm[i] = 0;
-        // Arg->min_i[i] = Arg->min_j[i] = 0;
-      }
-    }
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
+
     // printf("----------Step %d-----------\n", s);
     // printf("%d %d q = %d ind = %d\n", Arg->min_i[ind], Arg->min_j[ind], q, ind);
     //  print(a, n);
     //   printf("i0 = %d, j0 = %d\n", i0, j0);
+
+    // print(a, n);
+    // printf("\n");
+    swap(a, n, m, b, s, Arg->min_i[ind], Arg->min_j[ind], p, q, Arg->barrier);
     if (q == 0)
     {
-      swap(a, n, m, b, s, Arg->min_i[ind], Arg->min_j[ind]);
-      // print(a, n);
-      // printf("\n");
-      // print(b, 1, n);
-      // printf("\n");
       std::swap(per[s], per[Arg->min_j[ind]]);
-      get_block(a, n, m, s, s, c, v, v); // с - квадратная, v = h
-      inverse(c, v, g, nrm_a);
-      // g - обратная к с
-      // print(g, v);
-      // printf("\n");
-      // домножение строки на обратную матрицу
-      for (i = s + 1; i < bl; i++)
+    }
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
+
+    // printf("%d %d q = %d ind = %d\n", Arg->min_i[ind], Arg->min_j[ind], q, ind);
+    // print(a, n);
+    //  printf("\n");
+    //  print(b, 1, n);
+    //  printf("\n");
+
+    get_block(a, n, m, s, s, c, v, v); // с - квадратная, v = h
+    inverse(c, v, g, nrm_a);
+
+    // g - обратная к с
+    // print(g, v);
+    // printf("\n");
+    // домножение строки на обратную матрицу
+    int len = (bl - s - 1) / p;
+    if (q != p - 1)
+    {
+      for (i = s + 1 + q * len; i < s + 1 + (q + 1) * len; i++)
+      {
+        get_block(a, n, m, s, i, c, v, h);
+        // print(c, v, h);
+        // printf("\n");
+        multy(g, c, v, v, h, d);
+        // print(d, v, h);
+        // printf("\n");
+        set_block(a, n, m, s, i, d, v, h);
+      }
+    }
+    else
+    {
+      for (i = s + 1 + q * len; i < bl; i++)
       {
         get_block(a, n, m, s, i, c, v, h);
         // print(c, v, h);
@@ -708,67 +749,71 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
       get_right(b, n, m, s, c, h);
       multy_right(g, c, v, h, d);
       set_right(b, m, s, d, h);
+    }
 
-      // printf("матрица после умножения на обратную\n");
-      // print(a, n);
-      // printf("\n");
-      // print(b, 1, n);
-      // printf("\n");
-      //  главный ход, делаем элементарные приобразования строк
-      for (i = s + 1; i < bl; i++)
+    // printf("матрица после умножения на обратную\n");
+    // print(a, n);
+    // printf("\n");
+    // print(b, 1, n);
+    // printf("\n");
+
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
+    int start = p * ((p - 1 + s - q) / p) + q;
+    //  главный ход, делаем элементарные приобразования строк
+    for (i = start + 1; i < bl; i += p)
+    {
+      get_block(a, n, m, i, s, c, v, h);
+      for (int q = 0; q < v * h; q++)
       {
-        get_block(a, n, m, i, s, c, v, h);
-        for (int q = 0; q < v * h; q++)
+        if (fabs(c[q]) < EPS_64)
         {
-          if (fabs(c[q]) < EPS_64)
+          c[q] = 0;
+        }
+      }
+      // if (is_zero(c, v, h, nrm_a))
+      // {
+      //   continue;
+      // }
+      //   printf("c = ");
+      //   printf("v = %d, h = %d, i = %d, s = %d\n", v, h, i, s);
+      // print(c, v, h);
+      // printf("\n");
+      for (j = s + 1; j < bl; j++)
+      {
+        get_block(a, n, m, s, j, g, v_g, h_g);
+        for (int q = 0; q < v_g * h_g; q++)
+        {
+          if (fabs(g[q]) < EPS_64)
           {
-            c[q] = 0;
+            g[q] = 0;
           }
         }
-        // if (is_zero(c, v, h, nrm_a))
+        // if (is_zero(g, v_g, h_g, nrm_a))
         // {
         //   continue;
         // }
-        //   printf("c = ");
-        //   printf("v = %d, h = %d, i = %d, s = %d\n", v, h, i, s);
-        // print(c, v, h);
-        // printf("\n");
-        for (j = s + 1; j < bl; j++)
-        {
-          get_block(a, n, m, s, j, g, v_g, h_g);
-          for (int q = 0; q < v_g * h_g; q++)
-          {
-            if (fabs(g[q]) < EPS_64)
-            {
-              g[q] = 0;
-            }
-          }
-          // if (is_zero(g, v_g, h_g, nrm_a))
-          // {
-          //   continue;
-          // }
-          multy(c, g, v, h, h_g, d);
-          get_block(a, n, m, i, j, g, v_g, h_g);
-          sub(g, d, v, h_g, g);
-          set_block(a, n, m, i, j, g, v, h_g);
-        }
-        // домножаем правую часть
-        get_right(b, n, m, s, g, h_g);
-        // print(g, 1, h_g);
-        multy_right(c, g, v, h, d);
-        // print(d, 1, v);
-        get_right(b, n, m, i, g, h_g);
-        // print(g, 1, h_g);
-        sub(g, d, 1, h_g, f);
-        // print(f, 1, h_g);
-        set_right(b, m, i, f, h_g);
+        multy(c, g, v, h, h_g, d);
+        get_block(a, n, m, i, j, g, v_g, h_g);
+        sub(g, d, v, h_g, g);
+        set_block(a, n, m, i, j, g, v, h_g);
       }
-      // print(a, n);
-      // printf("\n");
-      // print(b, 1, n);
-      // printf("\n");
+      // домножаем правую часть
+      get_right(b, n, m, s, g, h_g);
+      // print(g, 1, h_g);
+      multy_right(c, g, v, h, d);
+      // print(d, 1, v);
+      get_right(b, n, m, i, g, h_g);
+      // print(g, 1, h_g);
+      sub(g, d, 1, h_g, f);
+      // print(f, 1, h_g);
+      set_right(b, m, i, f, h_g);
     }
-    pthread_barrier_wait(Arg->barrier);
+    // print(a, n);
+    // printf("\n");
+    // print(b, 1, n);
+    // printf("\n");
+
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
   }
 
   // обрабатываем правый нижний угловой блок размера l*l
@@ -846,7 +891,7 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
       // print(x, 1, n);
     }
 
-    print(x, 1, n);
+    // print(x, 1, n);
   }
   return gauss_status::DONE;
 }

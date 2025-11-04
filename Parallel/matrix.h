@@ -23,8 +23,8 @@ void multy(double *a, double *b, int n, int m, int l, double *c);
 void multy_right(double *g, double *b, int v, int h, double *d);
 bool inverse(double *a, int n, double *c, double nrm_a);
 bool main_element(double *a, int n, int m, int s, double *c, double *c_inv,
-                  int &res_i, int &res_j, double nrm_a);
-void swap(double *a, int n, int m, double *b, int s, int i, int j);
+                  int &res_i, int &res_j, double nrm_a, int p, int q);
+void swap(double *a, int n, int m, double *b, int s, int i, int j, int p, int q, pthread_barrier_t *barrier);
 void add(double *a, double *b, int n, int m, double *c);
 void sub(double *a, double *b, int n, int m, double *c);
 bool is_zero(double *c, int v, int h, double nrm_a);
