@@ -830,7 +830,7 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
       // printf("\n");
       if (!inverse(c, v, g, nrm_a))
       {
-        return NOT_APPLICABLE;
+        return gauss_status::NOT_APPLICABLE;
       }
       // g - обратная к с
       // print(g, v);
@@ -843,30 +843,40 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
       // printf("\n");
       // print(b, 1, n);
     }
+  }
+  pthread_barrier_wait(Arg->barrier); // Точка синхронизации
 
-    // ---------- обратный ход -----------
+  // ---------- обратный ход -----------
 
-    // for (i = 0; i < bl; i++)
-    // {
-    //   printf("p[%d] = %d\n", i, p[i]);
-    // }
+  // for (i = 0; i < bl; i++)
+  // {
+  //   printf("p[%d] = %d\n", i, p[i]);
+  // }
 
-    // print(a, n);
-    //  printf("\n");
-    //  print(b, 1, n);
-    //  printf("\n");
+  // print(a, n);
+  //  printf("\n");
+  //  print(b, 1, n);
+  //  printf("\n");
+  if (q == 0)
+  {
     get_right(b, n, m, bl - 1, c, h);
     set_right(x, m, per[bl - 1], c, h);
-    // print(x, 1, n);
-    // printf("\n");
-    for (j = bl - 2; j >= 0; j--)
+  }
+  pthread_barrier_wait(Arg->barrier); // Точка синхронизации
+
+  // print(x, 1, n);
+  // printf("\n");
+  for (j = bl - 2; j >= 0; j--)
+  {
+    // printf("-------------------\n");
+    for (i = 0; i < m * m; i++)
     {
-      // printf("-------------------\n");
-      for (i = 0; i < m * m; i++)
-      {
-        c[i] = 0;
-      }
-      for (i = 0; i < bl - j - 1; i++)
+      Arg->block[q][i] = 0;
+    }
+    int len = (bl - j - 1) / p;
+    if (q != p - 1)
+    {
+      for (i = q * len; i < (q + 1) * len; i++)
       {
         // printf("%d %d\n", j, bl - i - 1);
         get_block(a, n, m, j, bl - i - 1, g, v_g, h_g); // A_{i,(bl-i)} -> g
@@ -876,23 +886,57 @@ gauss_status gauss_method(args *Arg, double *c, double *g, double *d, double *f)
         // print(d, 1, h_d);
         // printf("\n");
         multy_right(g, d, v_g, h_g, f);
-        add(c, f, 1, v_g, c);
+        add(Arg->block[q], f, 1, v_g, Arg->block[q]);
         // print(f, 1, v_g);
         // printf("\n");
         // print(c, 1, v_g);
       }
-      // printf("\n");
-      //  print(c, 1, v_g);
+    }
+    else
+    {
+      for (i = q * len; i < bl - j - 1; i++)
+      {
+        // printf("%d %d\n", j, bl - i - 1);
+        get_block(a, n, m, j, bl - i - 1, g, v_g, h_g); // A_{i,(bl-i)} -> g
+        get_right(x, n, m, per[bl - i - 1], d, h_d);    // X_(bl-i) -> d
+        // print(g, v_g, h_g);
+        // printf("\n");
+        // print(d, 1, h_d);
+        // printf("\n");
+        multy_right(g, d, v_g, h_g, f);
+        add(Arg->block[q], f, 1, v_g, Arg->block[q]);
+        // print(f, 1, v_g);
+        // printf("\n");
+        // print(c, 1, v_g);
+      }
+    }
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
+
+    for (i = 0; i < m * m; i++)
+    {
+      c[i] = 0;
+    }
+    for (i = 0; i < p; i++)
+    {
+      add(c, Arg->block[i], 1, v_g, c);
+    }
+    // printf("\n");
+    //  print(c, 1, v_g);
+    if (q == 0)
+    {
       get_right(b, n, m, j, g, h);
       // print(g, 1, h);
       sub(g, c, 1, h, g);
       // print(d, 1, h);
       set_right(x, m, per[j], g, h);
-      // print(x, 1, n);
     }
+    pthread_barrier_wait(Arg->barrier); // Точка синхронизации
 
     // print(x, 1, n);
   }
+
+  // print(x, 1, n);
+
   return gauss_status::DONE;
 }
 

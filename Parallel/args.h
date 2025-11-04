@@ -18,7 +18,7 @@ public:
     int *min_i = nullptr;
     int *min_j = nullptr;
     pthread_barrier_t *barrier;
-    double *inv = nullptr;
+    double **block = nullptr;
     void reduce_sum(double *a = nullptr, int n = 0)
     {
         static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;

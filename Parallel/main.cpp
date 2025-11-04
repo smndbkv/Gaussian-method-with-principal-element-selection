@@ -93,7 +93,11 @@ int main(int argc, char **argv)
   double *min_norm = new double[p];
   int *min_i = new int[p];
   int *min_j = new int[p];
-  double *inv = new double[m * m];
+  double **block = new double *[p];
+  for (int q = 0; q < p; q++)
+  {
+    block[q] = new double[m * m];
+  }
   for (int q = 0; q < p; q++)
   {
     Arg[q].a = a;
@@ -109,7 +113,7 @@ int main(int argc, char **argv)
     Arg[q].min_i = min_i;
     Arg[q].min_j = min_j;
     Arg[q].barrier = &barrier;
-    Arg[q].inv = inv;
+    Arg[q].block = block;
   }
 
   t1 = clock();
@@ -162,6 +166,11 @@ int main(int argc, char **argv)
       delete[] min_norm;
       delete[] min_i;
       delete[] min_j;
+      for (int q = 0; q < p; q++)
+      {
+        delete[] block[q];
+      }
+      delete[] block;
       return -4;
     }
   }
@@ -220,5 +229,10 @@ int main(int argc, char **argv)
   delete[] min_norm;
   delete[] min_i;
   delete[] min_j;
+  for (int q = 0; q < p; q++)
+  {
+    delete[] block[q];
+  }
+  delete[] block;
   return 0;
 }
