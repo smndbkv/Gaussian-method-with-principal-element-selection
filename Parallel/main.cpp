@@ -14,7 +14,10 @@ void *thread_func(void *ptr)
   int m = Arg->m, q = Arg->q;
   gauss_status *err = Arg->err;
   double *c = new double[m * m], *g = new double[m * m], *d = new double[m * m], *f = new double[m * m];
+  double t = Arg->get_cpu_time();
   err[q] = gauss_method(Arg, c, g, d, f);
+  t = Arg->get_cpu_time() - t;
+  Arg->time = t;
   delete[] c;
   delete[] g;
   delete[] d;
@@ -135,6 +138,7 @@ int main(int argc, char **argv)
   }
   t1 = (clock() - t1) / CLOCKS_PER_SEC;
   clock_gettime(CLOCK_MONOTONIC, &end_t1);
+
   t1 = (end_t1.tv_sec - start_t1.tv_sec) * 1e9;
   t1 = (t1 + (end_t1.tv_nsec - start_t1.tv_nsec)) * 1e-9;
   for (int q = 0; q < p; q++)
@@ -214,6 +218,10 @@ int main(int argc, char **argv)
   r2 = get_r2(x, x_exact, n);
   t2 = (clock() - t2) / CLOCKS_PER_SEC;
 
+  for (int q = 0; q < p; q++)
+  {
+    printf("CPU time thread %.2lf\n", Arg[q].time);
+  }
   printf(
       "%s : Task = %d Res1 = %e Res2 = %e T1 = %.2f T2 = %.2f S = %d N = %d M = %d P = %d\n",
       argv[0], 11, r1, r2, t1, t2, s, n, m, p);

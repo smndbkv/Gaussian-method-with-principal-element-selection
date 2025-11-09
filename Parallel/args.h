@@ -1,6 +1,9 @@
 #ifndef ARGS_H
 #define ARGS_H
 #include <pthread.h>
+#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "io_status.h"
 class args
 {
@@ -19,6 +22,7 @@ public:
     int *min_j = nullptr;
     pthread_barrier_t *barrier;
     double **block = nullptr;
+    double time = 0;
     void reduce_sum(double *a = nullptr, int n = 0)
     {
         static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
@@ -85,6 +89,18 @@ public:
 
         pthread_mutex_unlock(&m);
         return;
+    }
+    double get_full_time()
+    {
+        struct timeval t;
+        gettimeofday(&t, 0);
+        return t.tv_sec + t.tv_usec / 1e6;
+    }
+    double get_cpu_time()
+    {
+        struct rusage t;
+        getrusage(RUSAGE_THREAD, &t);
+        return t.ru_utime.tv_sec + t.ru_utime.tv_usec / 1e6;
     }
 };
 
